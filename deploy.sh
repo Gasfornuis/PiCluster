@@ -1,10 +1,13 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INVENTORY="inventory/inventory.ini"
 ANSIBLE_DIR="ansible"
 
-#Help
+export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
+
+# Help
 usage() {
   echo "
 Usage: ./deploy.sh [option]
@@ -16,7 +19,7 @@ Options:
   exit 0
 }
 
-#Check Ansible is installed
+# Check Ansible is installed
 check_ansible() {
   if ! command -v ansible-playbook &> /dev/null; then
     echo "[ERROR] ansible-playbook not found. Install it with:"
@@ -25,13 +28,13 @@ check_ansible() {
   fi
 }
 
-#Install Ansible collections
+# Install Ansible collections
 install_collections() {
   echo "[INFO] Installing required Ansible collections..."
   ansible-galaxy collection install community.general
 }
 
-#Deploy cluster
+# Deploy cluster
 deploy_cluster() {
   echo "[INFO] Deploying k3s cluster..."
   ansible-playbook -i "$INVENTORY" "$ANSIBLE_DIR/site.yml" --ask-vault-pass
@@ -39,12 +42,12 @@ deploy_cluster() {
   echo "[INFO] To use kubectl: export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig"
 }
 
-#No arguments
+# No arguments
 if [ $# -eq 0 ]; then
   usage
 fi
 
-#Parse options
+# Parse options
 case "$1" in
   --cluster)
     check_ansible
