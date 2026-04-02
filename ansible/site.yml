@@ -3,17 +3,23 @@
 - name: Apply common configuration to all nodes
   hosts: all
   become: true
+  vars_files:
+    - ../inventory/group_vars/vault.yml
   roles:
     - common
 
 - name: Set up k3s master
   hosts: master
   become: true
+  vars_files:
+    - ../inventory/group_vars/vault.yml
   roles:
     - k3s-master
 
 - name: Join workers to cluster
   hosts: workers
   become: true
+  vars_files:
+    - ../inventory/group_vars/vault.yml
   roles:
     - k3s-worker
