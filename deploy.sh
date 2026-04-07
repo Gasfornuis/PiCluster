@@ -34,9 +34,9 @@ install_collections() {
 #Deploy cluster
 deploy_cluster() {
   echo "[INFO] Deploying k3s cluster..."
-  ansible-playbook -i "$INVENTORY" "$ANSIBLE_DIR/site.yml" --ask-vault-pass
+  ansible-playbook -i "$INVENTORY" "$ANSIBLE_DIR/site.yml"
   echo "[SUCCESS] Cluster deployed!"
-  echo "[INFO] To use kubectl: export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig"
+  echo "[INFO] To use kubectl: export KUBECONFIG=$(pwd)/kubernetes/kubeconfig"
 }
 
 #No arguments
