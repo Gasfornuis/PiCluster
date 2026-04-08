@@ -29,6 +29,8 @@ spec:
           volumeMounts:
             - name: mariadb-data
               mountPath: /var/lib/mysql
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
           resources:
             requests:
               memory: "128Mi"
@@ -40,3 +42,6 @@ spec:
         - name: mariadb-data
           persistentVolumeClaim:
             claimName: mariadb-pvc
+        - name: init-sql
+          configMap:
+            name: mariadb-init

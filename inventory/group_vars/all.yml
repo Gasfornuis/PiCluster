@@ -1,13 +1,13 @@
 # inventory/group_vars/all.yml
 
 # Nodes
-master_ip: "192.168.2.5"
+master_ip: "192.168.1.10"
 
 workers:
   - name: pi-worker1
-    ip: "192.168.2.6"
+    ip: "192.168.1.20"
   - name: pi-worker2
-    ip: "192.168.2.7"
+    ip: "192.168.1.30"
 
 # SSH
 ansible_user: piuser
