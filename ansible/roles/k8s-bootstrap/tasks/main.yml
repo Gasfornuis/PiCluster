@@ -1,0 +1,111 @@
+# ansible/roles/k8s-bootstrap/tasks/main.yml
+
+- name: Wait for k3s API to be ready
+  wait_for:
+    port: 6443
+    host: "{{ master_ip }}"
+    timeout: 120
+
+- name: Set KUBECONFIG
+  set_fact:
+    kubeconfig_path: /etc/rancher/k3s/k3s.yaml
+
+# --- Namespaces ---
+- name: Create namespaces
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/namespaces/namespaces.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+# --- Backend ---
+- name: Apply mariadb secret
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/backend/secret.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply mariadb PVC
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/backend/pvc.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply mariadb deployment
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/backend/mariadb-deployment.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply mariadb service
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/backend/mariadb-service.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+# --- Frontend ---
+- name: Apply frontend deployment
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/frontend/deployment.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply frontend service
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/frontend/service.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply frontend ingress
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/frontend/ingress.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+# --- Network Policies ---
+- name: Apply network policies
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/network-policies/policies.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+# --- Monitoring via Helm ---
+- name: Install Helm
+  shell: curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+
+- name: Add Prometheus Helm repo
+  command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  changed_when: false
+
+- name: Update Helm repos
+  command: helm repo update
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+  changed_when: false
+
+- name: Copy Helm values to master
+  copy:
+    src: "{{ playbook_dir }}/../kubernetes/monitoring/helm-values.yml"
+    dest: /tmp/helm-values.yml
+
+- name: Deploy Prometheus + Grafana stack
+  command: >
+    helm upgrade --install monitoring
+    prometheus-community/kube-prometheus-stack
+    --namespace monitoring
+    --values /tmp/helm-values.yml
+    --wait --timeout 5m
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"

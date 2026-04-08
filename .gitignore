@@ -1,8 +1,6 @@
 # Vault secrets
 vault_pass.txt
 ansible/group_vars/.vault_pass
-inventory/group_vars/vault.yml
-
 # Kubeconfig (contains cluster credentials)
 kubernetes/base/kubeconfig
 .DS_Store

@@ -3,13 +3,13 @@ pi cluster automatic deployment/infra as code
 
 CONFIGURATION:
   1. Set your Pi IPs in inventory/group_vars/all.yml:
-    master_ip: "192.168.1.101"
+    master_ip: "192.168.1.10"
  
     workers:
       - name: pi-worker1
-        ip: "192.168.1.102"
+        ip: "192.168.1.20"
       - name: pi-worker2
-        ip: "192.168.1.103"
+        ip: "192.168.1.30"
  
   2. Create and encrypt your secrets:
     ansible-vault create inventory/group_vars/vault.yml
@@ -25,8 +25,13 @@ USAGE:
   Deploy the cluster:
     ./deploy.sh --cluster
  
-    You will be prompted for your vault password.
- 
-    To use kubectl after deployment:
-      export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig
-      kubectl get nodes
+  Destroy the cluster:
+    ./deploy.sh --destroy
+
+  After deployment:
+    export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig
+    kubectl get nodes
+
+  Access:
+    Frontend: http://<master-ip>:30080
+    Grafana:  http://<master-ip>:30030 (admin / dbf-grafana-2025)

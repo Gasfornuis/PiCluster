@@ -17,3 +17,9 @@
   become: true
   roles:
     - k3s-worker
+
+- name: Bootstrap Kubernetes resources
+  hosts: master
+  become: true
+  roles:
+    - k8s-bootstrap
