@@ -1,0 +1,21 @@
+# ansible/roles/k3s-worker/tasks/main.yml
+
+- name: Check if k3s agent is already installed
+  stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Install k3s agent and join cluster
+  shell: |
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} \
+    K3S_TOKEN={{ k3s_token }} \
+    K3S_URL=https://{{ master_ip }}:6443 \
+    sh -s - agent \
+    --node-ip={{ ansible_host }}
+  when: not k3s_binary.stat.exists
+
+- name: Ensure k3s-agent service is running
+  systemd:
+    name: k3s-agent
+    enabled: true
+    state: started

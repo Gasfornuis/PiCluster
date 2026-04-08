@@ -1,0 +1,19 @@
+# inventory/group_vars/all.yml
+
+# Nodes
+master_ip: "192.168.2.5"
+
+workers:
+  - name: pi-worker1
+    ip: "192.168.2.6"
+  - name: pi-worker2
+    ip: "192.168.2.7"
+
+# SSH
+ansible_user: piuser
+ansible_password: "{{ vault_ansible_password }}"
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+# k3s
+k3s_version: "v1.29.3+k3s1"
+k3s_token: "{{ vault_k3s_token }}"

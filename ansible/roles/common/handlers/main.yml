@@ -1,0 +1,5 @@
+# ansible/roles/common/handlers/main.yml
+
+- name: Reboot node
+  reboot:
+    reboot_timeout: 60

@@ -1,0 +1,14 @@
+master_ip: "192.168.2.5"
+
+workers:
+  - name: pi-worker1
+    ip: "192.168.2.6"
+  - name: pi-worker2
+    ip: "192.168.2.7"
+
+ansible_user: ubuntu
+ansible_ssh_private_key_file: "~/.ssh/multipass_key"
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+k3s_version: "v1.29.3+k3s1"
+k3s_token: "test-token-12345"

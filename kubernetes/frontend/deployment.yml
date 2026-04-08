@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: app
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head><title>DBF - MVP</title></head>
+    <body>
+      <h1>DBF Netwerkinfrastructuur MVP</h1>
+      <p>Frontend webserver draait op k3s Pi Cluster.</p>
+      <p>Casusgroep Jeff - KE02 Automation 2025-2026</p>
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: app
+  labels:
+    app: nginx
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+      volumes:
+        - name: html
+          configMap:
+            name: nginx-config
