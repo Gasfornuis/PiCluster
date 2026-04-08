@@ -16,4 +16,4 @@ ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
 # k3s
 k3s_version: "v1.29.3+k3s1"
-k3s_token: "{{ vault_k3s_token }}"
+k3s_token: "jeff-picluster-2025"
