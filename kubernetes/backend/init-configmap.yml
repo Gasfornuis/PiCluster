@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-init
+  namespace: app
+data:
+  init.sql: |
+    USE iac_tracker;
+
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        naam VARCHAR(255) NOT NULL,
+        email VARCHAR(255),
+        rol ENUM('Developer','Tester','DevOps','Overig')
+    );
+
+    CREATE TABLE IF NOT EXISTS sprints (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        sprint_nummer INT NOT NULL,
+        start_datum DATE,
+        eind_datum DATE,
+        totaal_punten INT DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        titel VARCHAR(255) NOT NULL,
+        beschrijving TEXT,
+        status ENUM('To Do','In Progress','Done') DEFAULT 'To Do',
+        toegewezen_aan INT,
+        categorie ENUM('Networking','Ansible','Docker','Monitoring','Security','Webserver','Database','Overig'),
+        story_points INT,
+        prioriteit ENUM('Low','Medium','High') DEFAULT 'Medium',
+        aangemaakt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        bijgewerkt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        sprint_id INT,
+        FOREIGN KEY (toegewezen_aan) REFERENCES users(id),
+        FOREIGN KEY (sprint_id) REFERENCES sprints(id)
+    );
+
+    INSERT IGNORE INTO users (id, naam, email, rol) VALUES
+    (1, 'Daan Ros', 'daan@test.nl', 'DevOps'),
+    (2, 'Test User', 'test@test.nl', 'Developer');
+
+    INSERT IGNORE INTO sprints (id, sprint_nummer, start_datum, eind_datum, totaal_punten) VALUES
+    (1, 1, '2025-03-24', '2025-04-07', 21);
+
+    INSERT IGNORE INTO tasks (id, titel, beschrijving, status, toegewezen_aan, categorie, story_points, prioriteit, sprint_id) VALUES
+    (1, 'VNet aanmaken met OpenTofu', 'Virtual network met subnets deployen', 'Done', 1, 'Networking', 3, 'High', 1),
+    (2, 'Nginx installeren met Ansible', 'Webserver provisioning playbook', 'In Progress', 1, 'Webserver', 5, 'High', 1),
+    (3, 'MariaDB container deployen', 'Database in Docker opzetten', 'To Do', 2, 'Database', 3, 'Medium', 1);
