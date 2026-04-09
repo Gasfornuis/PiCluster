@@ -1,0 +1,19 @@
+# ansible/cluster.yml
+
+- name: Apply common configuration to all nodes
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- name: Set up k3s master
+  hosts: master
+  become: true
+  roles:
+    - k3s-master
+
+- name: Join workers to cluster
+  hosts: workers
+  become: true
+  roles:
+    - k3s-worker
