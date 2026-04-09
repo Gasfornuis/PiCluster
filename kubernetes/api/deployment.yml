@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dbf-api
+  namespace: app
+  labels:
+    app: dbf-api
+    tier: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dbf-api
+  template:
+    metadata:
+      labels:
+        app: dbf-api
+        tier: api
+    spec:
+      containers:
+        - name: dbf-api
+          image: phillyblanca/dbf-api:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: ConnectionStrings__Default
+              value: "Server=mariadb;Port=3306;Database=iac_tracker;User=budibase;Password=budibase123"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

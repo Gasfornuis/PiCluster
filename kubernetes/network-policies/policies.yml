@@ -26,13 +26,35 @@ spec:
   ingress:
     - ports:
         - port: 80
+        - port: 8080
 
 ---
-# Allow only frontend to reach postgres (FR-NET-06, FR-NET-07)
+# Allow frontend to reach API (FR-NET-06)
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-frontend-to-postgres
+  name: allow-frontend-to-api
+  namespace: app
+spec:
+  podSelector:
+    matchLabels:
+      tier: api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+      ports:
+        - port: 5000
+
+---
+# Allow API to reach database (FR-NET-06, FR-NET-07)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-to-database
   namespace: app
 spec:
   podSelector:
@@ -44,6 +66,6 @@ spec:
     - from:
         - podSelector:
             matchLabels:
-              tier: frontend
+              tier: api
       ports:
         - port: 3306

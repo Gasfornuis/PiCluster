@@ -54,6 +54,21 @@
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
 
+# --- API ---
+- name: Apply API deployment
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/api/deployment.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply API service
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/api/service.yml') }}"
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
 # --- Frontend ---
 - name: Apply frontend deployment
   command: kubectl apply -f -
@@ -136,5 +151,12 @@
     --namespace monitoring
     --values /tmp/helm-values.yml
     --wait --timeout 5m
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
+
+- name: Apply monitoring ingress
+  command: kubectl apply -f -
+  args:
+    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/monitoring/ingress.yml') }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
