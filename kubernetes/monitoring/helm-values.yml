@@ -18,12 +18,15 @@ prometheus:
           resources:
             requests:
               storage: 2Gi
-
 grafana:
   adminPassword: dbf-grafana-2025
   service:
     type: NodePort
     nodePort: 30030
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/grafana"
+      serve_from_sub_path: true
   resources:
     requests:
       memory: "128Mi"
@@ -31,7 +34,6 @@ grafana:
     limits:
       memory: "256Mi"
       cpu: "300m"
-
 # Disable heavy components not needed on Pi
 alertmanager:
   enabled: false
@@ -43,6 +45,5 @@ kubeControllerManager:
   enabled: false
 kubeProxy:
   enabled: false
-
 nodeExporter:
   enabled: true
