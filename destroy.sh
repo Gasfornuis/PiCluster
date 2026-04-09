@@ -4,6 +4,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INVENTORY="${INVENTORY:-inventory/inventory.ini}"
 
+eval $(ssh-agent)
+ssh-add ~/.ssh/pi
+
 echo "[INFO] Starting decommissioning of the full service..."
 echo "[INFO] Using inventory: $INVENTORY"
 
