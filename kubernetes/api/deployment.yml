@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: dbf-api
-          image: phillyblanca/dbf-api:latest
+          image: phillyblanca/automationapi:latest
           ports:
             - containerPort: 5000
           env:
