@@ -90,29 +90,7 @@
     stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/frontend/ingress.yml') }}"
   environment:
     KUBECONFIG: "{{ kubeconfig_path }}"
-
-# --- Budibase ---
-- name: Apply budibase PVC
-  command: kubectl apply -f -
-  args:
-    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/budibase/pvc.yml') }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-
-- name: Apply budibase deployment
-  command: kubectl apply -f -
-  args:
-    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/budibase/deployment.yml') }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-
-- name: Apply budibase service
-  command: kubectl apply -f -
-  args:
-    stdin: "{{ lookup('file', playbook_dir + '/../kubernetes/budibase/service.yml') }}"
-  environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-
+    
 # --- Network Policies ---
 - name: Apply network policies
   command: kubectl apply -f -
