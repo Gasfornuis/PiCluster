@@ -26,7 +26,6 @@ spec:
   ingress:
     - ports:
         - port: 80
-        - port: 8080
 
 ---
 # Allow frontend to reach API (FR-NET-06)
