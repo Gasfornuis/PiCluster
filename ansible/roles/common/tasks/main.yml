@@ -11,30 +11,108 @@
       - curl
       - apt-transport-https
       - ca-certificates
+      - iptables
     state: present
 
-# PiOS only: enable cgroups for k3s
-- name: Check if /boot/cmdline.txt exists (PiOS)
+# Clean up broken k3s install if service is failed
+- name: Check if k3s is installed
+  stat:
+    path: /usr/local/bin/k3s
+  register: k3s_check
+
+- name: Check if k3s service is active
+  command: systemctl is-active k3s
+  register: k3s_active
+  ignore_errors: true
+  changed_when: false
+  when: k3s_check.stat.exists
+
+- name: Check if k3s-agent service is active
+  command: systemctl is-active k3s-agent
+  register: k3s_agent_active
+  ignore_errors: true
+  changed_when: false
+  when: k3s_check.stat.exists
+
+- name: Remove broken k3s server install
+  shell: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_check.stat.exists
+    - k3s_active is defined
+    - k3s_active.rc is defined
+    - k3s_active.rc != 0
+    - k3s_agent_active is defined
+    - k3s_agent_active.rc is defined
+    - k3s_agent_active.rc != 0
+  ignore_errors: true
+
+- name: Remove broken k3s agent install
+  shell: /usr/local/bin/k3s-agent-uninstall.sh
+  when:
+    - k3s_check.stat.exists
+    - k3s_agent_active is defined
+    - k3s_agent_active.rc is defined
+    - k3s_agent_active.rc != 0
+    - k3s_active is defined
+    - k3s_active.rc is defined
+    - k3s_active.rc != 0
+  ignore_errors: true
+
+# Detect cmdline.txt location (differs per PiOS version)
+- name: Check if /boot/firmware/cmdline.txt exists
+  stat:
+    path: /boot/firmware/cmdline.txt
+  register: cmdline_firmware
+
+- name: Check if /boot/cmdline.txt exists
   stat:
     path: /boot/cmdline.txt
-  register: cmdline_file
+  register: cmdline_boot
+
+- name: Set cmdline.txt path
+  set_fact:
+    cmdline_path: "{{ '/boot/firmware/cmdline.txt' if cmdline_firmware.stat.exists else ('/boot/cmdline.txt' if cmdline_boot.stat.exists else '') }}"
 
 - name: Read current cmdline.txt
   slurp:
-    src: /boot/cmdline.txt
+    src: "{{ cmdline_path }}"
   register: cmdline_content
-  when: cmdline_file.stat.exists
+  when: cmdline_path != ''
 
 - name: Enable cgroups for k3s (required on Raspberry Pi)
   lineinfile:
-    path: /boot/cmdline.txt
+    path: "{{ cmdline_path }}"
     backrefs: yes
     regexp: '^(.*)$'
     line: '\1 cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1'
   when:
-    - cmdline_file.stat.exists
+    - cmdline_path != ''
     - "'cgroup_memory=1' not in (cmdline_content.content | b64decode)"
   notify: Reboot node
+
+# Fix: also remove wrong cgroups entry from /boot/cmdline.txt if it was written there by mistake
+- name: Check if wrong cmdline.txt has cgroups
+  slurp:
+    src: /boot/cmdline.txt
+  register: wrong_cmdline
+  when:
+    - cmdline_firmware.stat.exists
+    - cmdline_boot.stat.exists
+  ignore_errors: true
+
+- name: Remove cgroups from wrong cmdline.txt location
+  lineinfile:
+    path: /boot/cmdline.txt
+    backrefs: yes
+    regexp: '^(.*?) cgroup_enable=cpuset cgroup_enable=memory cgroup_memory=1(.*)$'
+    line: '\1\2'
+  when:
+    - cmdline_firmware.stat.exists
+    - cmdline_boot.stat.exists
+    - wrong_cmdline is defined
+    - wrong_cmdline.content is defined
+    - "'cgroup_memory=1' in (wrong_cmdline.content | b64decode)"
+  ignore_errors: true
 
 - name: Set hostname dynamically from inventory
   hostname:
