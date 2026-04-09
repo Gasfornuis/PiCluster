@@ -24,7 +24,7 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: ConnectionStrings__Default
+            - name: ConnectionStrings
               value: "Server=mariadb;Port=3306;Database=iac_tracker;User=budibase;Password=budibase123"
           resources:
             requests:
