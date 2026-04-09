@@ -20,12 +20,12 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: jouwusername/dbf-frontend:latest
+          image: phillyblanca/automationfe:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
-            - name: ApiUrl
-              value: "http://dbf-api"
+            - name: ApiBaseUrl
+              value: "http://dbf-api:5000/"
           resources:
             requests:
               memory: "128Mi"
