@@ -7,6 +7,9 @@ ANSIBLE_DIR="ansible"
 
 export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
 
+eval $(ssh-agent)
+ssh-add ~/.ssh/pi
+
 usage() {
   echo "
 Usage: ./deploy.sh [option]
