@@ -12,11 +12,12 @@ usage() {
 Usage: ./deploy.sh [option]
 
 Options:
-  --cluster        Deploy full k3s cluster + apps + monitoring (Pi's)
-  --test           Deploy on Multipass test VMs
-  --destroy        Decommission the full service (Pi's)
-  --destroy-test   Decommission test environment
-  --help           Show this help message
+  (geen)           Deploy alles (cluster + apps + monitoring)
+  --cluster        Deploy alleen het k3s cluster
+  --destroy        Ontmantel de volledige dienst
+  --test           Deploy alles op Multipass test VMs
+  --destroy-test   Ontmantel test omgeving
+  --help           Toon dit bericht
 "
   exit 0
 }
@@ -33,14 +34,22 @@ install_collections() {
   ansible-galaxy collection install community.general
 }
 
-deploy_cluster() {
-  echo "[INFO] Deploying k3s cluster + applications + monitoring..."
+deploy_all() {
+  echo "[INFO] Deploying full stack (cluster + apps + monitoring)..."
   ansible-playbook -i "$INVENTORY" "$ANSIBLE_DIR/site.yml"
-  echo "[SUCCESS] Cluster deployed!"
+  echo "[SUCCESS] Full stack deployed!"
   echo ""
   echo "  kubectl:  export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig"
   echo "  frontend: http://<master-ip>:30080"
   echo "  grafana:  http://<master-ip>:30030  (admin / dbf-grafana-2025)"
+}
+
+deploy_cluster() {
+  echo "[INFO] Deploying k3s cluster only..."
+  ansible-playbook -i "$INVENTORY" "$ANSIBLE_DIR/cluster.yml"
+  echo "[SUCCESS] Cluster deployed!"
+  echo ""
+  echo "  kubectl:  export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig"
 }
 
 destroy_cluster() {
@@ -77,7 +86,10 @@ destroy_test() {
 }
 
 if [ $# -eq 0 ]; then
-  usage
+  check_ansible
+  install_collections
+  deploy_all
+  exit 0
 fi
 
 case "$1" in
