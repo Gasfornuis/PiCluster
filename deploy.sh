@@ -18,7 +18,6 @@ Options:
   (geen)           Deploy alles (cluster + apps + monitoring)
   --cluster        Deploy alleen het k3s cluster
   --destroy        Ontmantel de volledige dienst
-  --test           Deploy alles op Multipass test VMs
   --destroy-test   Ontmantel test omgeving
   --help           Toon dit bericht
 "
@@ -60,29 +59,6 @@ destroy_cluster() {
   read -p "Are you sure? (y/N): " confirm
   if [[ "$confirm" =~ ^[Yy]$ ]]; then
     bash "$SCRIPT_DIR/destroy.sh"
-  else
-    echo "[INFO] Cancelled."
-  fi
-}
-
-deploy_test() {
-  export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible-test.cfg"
-  echo "[INFO] Deploying on Multipass test VMs..."
-  ansible-playbook -i "inventory/test/inventory.ini" "$ANSIBLE_DIR/site.yml"
-  MASTER_IP=$(grep pi-master inventory/test/inventory.ini | sed 's/.*ansible_host=//')
-  echo "[SUCCESS] Test cluster deployed!"
-  echo ""
-  echo "  kubectl:  export KUBECONFIG=$(pwd)/kubernetes/base/kubeconfig"
-  echo "  frontend: http://$MASTER_IP:30080"
-  echo "  grafana:  http://$MASTER_IP:30030  (admin / dbf-grafana-2025)"
-}
-
-destroy_test() {
-  export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible-test.cfg"
-  echo "[WARNING] This will remove the test service."
-  read -p "Are you sure? (y/N): " confirm
-  if [[ "$confirm" =~ ^[Yy]$ ]]; then
-    INVENTORY="inventory/test/inventory.ini" bash "$SCRIPT_DIR/destroy.sh"
   else
     echo "[INFO] Cancelled."
   fi
