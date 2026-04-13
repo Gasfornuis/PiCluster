@@ -1,5 +1,4 @@
 # PiCluster
-pi cluster automatic deployment/infra as code
 Automated Kubernetes cluster deployment for Raspberry Pi 4's using Ansible and K3S.
 
 Deploy a full K3S cluster with a C# web application, API, MariaDB database, Prometheus/Grafana monitoring, HTTPS via Traefik, and network security policies on all Raspberry Pi 4's with one command. Decommision everything also with one command.
