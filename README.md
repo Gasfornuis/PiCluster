@@ -44,7 +44,7 @@ Below is a usage example of deployment and decommisioning. Keep in mind that thi
 ./deploy.sh --cluster
 
 # Destroy the full service
-./destroy.sh
+./deploy.sh --destroy
 
 # Show help
 ./deploy.sh --help
