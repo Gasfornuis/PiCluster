@@ -77,18 +77,9 @@ case "$1" in
     install_collections
     deploy_cluster
     ;;
-  --test)
-    check_ansible
-    install_collections
-    deploy_test
-    ;;
   --destroy)
     check_ansible
     destroy_cluster
-    ;;
-  --destroy-test)
-    check_ansible
-    destroy_test
     ;;
   --help)
     usage
