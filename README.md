@@ -35,11 +35,8 @@ pi-worker2 ansible_host=192.168.1.30
 ```
 
 ## Usage
+Below is a usage example of deployment and decommisioning. Keep in mind that this script has to be run as bash and won't work with Fish or ZSH or other alternative shells.
 ```bash
-# Add SSH key to agent (once per terminal session)
-eval $(ssh-agent)
-ssh-add ~/.ssh/pi
-
 # Deploy everything with one command
 ./deploy.sh
 
@@ -47,26 +44,10 @@ ssh-add ~/.ssh/pi
 ./deploy.sh --cluster
 
 # Destroy the full service
-./deploy.sh --destroy
+./destroy.sh
 
 # Show help
 ./deploy.sh --help
-```
-
-## Testing
-You can test the deployment locally without the need for Pi's using Multipass:
-```bash
-# Create VMs and configure SSH
-./test-setup.sh
-
-# Deploy on test VMs
-./deploy.sh --test
-
-# Destroy test environment
-./deploy.sh --destroy-test
-
-# Remove VMs entirely
-./test-setup.sh --clean
 ```
 
 ## Project structure
