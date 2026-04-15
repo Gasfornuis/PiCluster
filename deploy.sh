@@ -18,7 +18,6 @@ Options:
   (geen)           Deploy alles (cluster + apps + monitoring)
   --cluster        Deploy alleen het k3s cluster
   --destroy        Ontmantel de volledige dienst
-  --destroy-test   Ontmantel test omgeving
   --help           Toon dit bericht
 "
   exit 0
