@@ -74,15 +74,16 @@ destroy_cluster() {
 
 if [ $# -eq 0 ]; then
   check_ansible
+  check_kubectl
   install_collections
   deploy_all
-  check_kubectl
   exit 0
 fi
 
 case "$1" in
   --cluster)
     check_ansible
+    check_kubectl
     install_collections
     deploy_cluster
     ;;
