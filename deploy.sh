@@ -30,6 +30,15 @@ check_ansible() {
   fi
 }
 
+check_kubectl() {
+  if ! command -v kubectl &> /dev/null; then
+    echo "[ERROR] kubectl not found. Please install it first."
+    echo "Mac (Homebrew): brew install kubectl"
+    echo "Linux (apt): sudo apt-get install -y kubectl"
+    exit 1
+  fi
+}
+
 install_collections() {
   echo "[INFO] Installing required Ansible collections..."
   ansible-galaxy collection install community.general
@@ -67,6 +76,7 @@ if [ $# -eq 0 ]; then
   check_ansible
   install_collections
   deploy_all
+  check_kubectl
   exit 0
 fi
 
