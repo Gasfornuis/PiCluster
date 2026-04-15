@@ -25,7 +25,7 @@ spec:
             - containerPort: 5000
           env:
             - name: ConnectionStrings__MariaDB
-              value: "Server=mariadb;Port=3306;Database=iac_tracker;User=budibase;Password=budibase123"
+              value: "Server=mariadb;Port=3306;Database=iac_tracker;User=dbfuser;Password=dbfuser123"
           resources:
             requests:
               memory: "128Mi"
