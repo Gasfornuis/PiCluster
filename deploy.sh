@@ -7,8 +7,39 @@ ANSIBLE_DIR="ansible"
 
 export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
 
-eval $(ssh-agent)
-ssh-add ~/.ssh/pi
+setup_ssh() {
+  if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)" > /dev/null
+  fi
+
+  if ! ssh-add -l 2>/dev/null | grep -q "\.ssh/pi"; then
+    echo "[INFO] SSH-sleutel niet gevonden in agent. Even toevoegen..."
+    ssh-add ~/.ssh/pi
+  fi
+
+  MASTER_IP=$(grep -A 1 '^\[master\]' "$INVENTORY" | tail -n 1 | awk '{print $2}' | cut -d= -f2)
+
+  echo "[INFO] Testen of de sleutel toegang geeft tot $MASTER_IP..."
+  
+  if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no piuser@"$MASTER_IP" exit 2>/dev/null; then
+    echo "[SUCCESS] SSH-toegang werkt perfect!"
+  else
+    echo "[WARNING] De opgeslagen sleutel werkt niet (of de Pi is offline)."
+    echo "[INFO] Wis het geheugen en probeer het opnieuw..."
+    
+    ssh-add -D
+    ssh-add ~/.ssh/pi
+    
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no piuser@"$MASTER_IP" exit 2>/dev/null; then
+       echo "[SUCCESS] Het werkt!"
+    else
+       echo "[ERROR] Nog steeds geen toegang. Controleer of de Pi aan staat en je de juiste sleutel hebt."
+       exit 1
+    fi
+  fi
+}
+
+setup_ssh
 
 usage() {
   echo "
