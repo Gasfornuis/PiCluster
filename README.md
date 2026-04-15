@@ -67,11 +67,10 @@ PiCluster/
 │   ├── inventory.ini                # Pi IP addresses
 │   └── group_vars/all.yml           # Shared variables
 ├── kubernetes/
-│   ├── api/                         # C# API deployment with service
-│   ├── backend/                     # MariaDB deployment with service and PVC
-│   ├── frontend/                    # C# frontend deployment with service and ingress
-│   ├── monitoring/                  # Prometheus and Grafana (Helm)
-│   ├── namespaces/                  # App and monitoring namespaces
-│   └── network-policies/            # Firewall rules for pods
-└── test-setup.sh                    # Test environment for multipass
+    ├── api/                         # C# API deployment with service
+    ├── backend/                     # MariaDB deployment with service and PVC
+    ├── frontend/                    # C# frontend deployment with service and ingress
+    ├── monitoring/                  # Prometheus and Grafana (Helm)
+    ├── namespaces/                  # App and monitoring namespaces
+    └── network-policies/            # Firewall rules for pods
 ```
