@@ -7,49 +7,50 @@ ANSIBLE_DIR="ansible"
 
 export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
 
+#!/bin/bash
+set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+INVENTORY="inventory/inventory.ini"
+ANSIBLE_DIR="ansible"
+export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
+
 setup_ssh() {
   if [ -z "$SSH_AUTH_SOCK" ]; then
     eval "$(ssh-agent -s)" > /dev/null
   fi
-
   if ! ssh-add -l 2>/dev/null | grep -q "\.ssh/pi"; then
-    echo "[INFO] SSH-sleutel niet gevonden in agent. Even toevoegen..."
+    echo "[INFO] SSH key not found in agent. Adding it now..."
     ssh-add ~/.ssh/pi
   fi
-
   MASTER_IP=$(grep -A 1 '^\[master\]' "$INVENTORY" | tail -n 1 | awk '{print $2}' | cut -d= -f2)
-
-  echo "[INFO] Testen of de sleutel toegang geeft tot $MASTER_IP..."
+  echo "[INFO] Testing if the key provides access to $MASTER_IP..."
   
   if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no piuser@"$MASTER_IP" exit 2>/dev/null; then
-    echo "[SUCCESS] SSH-toegang werkt perfect!"
+    echo "[SUCCESS] SSH access works perfectly!"
   else
-    echo "[WARNING] De opgeslagen sleutel werkt niet (of de Pi is offline)."
-    echo "[INFO] Wis het geheugen en probeer het opnieuw..."
+    echo "[WARNING] The stored key does not work (or the Pi is offline)."
+    echo "[INFO] Clearing the cache and trying again..."
     
     ssh-add -D
     ssh-add ~/.ssh/pi
     
     if ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no piuser@"$MASTER_IP" exit 2>/dev/null; then
-       echo "[SUCCESS] Het werkt!"
+       echo "[SUCCESS] It works!"
     else
-       echo "[ERROR] Nog steeds geen toegang. Controleer of de Pi aan staat en je de juiste sleutel hebt."
+       echo "[ERROR] Still no access. Check if the Pi is powered on and you have the correct key."
        exit 1
     fi
   fi
 }
 
-setup_ssh
-
 usage() {
   echo "
 Usage: ./deploy.sh [option]
-
 Options:
-  (geen)           Deploy alles (cluster + apps + monitoring)
-  --cluster        Deploy alleen het k3s cluster
-  --destroy        Ontmantel de volledige dienst
-  --help           Toon dit bericht
+  (none)           Deploy everything (cluster + apps + monitoring)
+  --cluster        Deploy only the k3s cluster
+  --destroy        Dismantle the complete service
+  --help           Show this message
 "
   exit 0
 }
@@ -104,6 +105,7 @@ destroy_cluster() {
 }
 
 if [ $# -eq 0 ]; then
+  setup_ssh
   check_ansible
   check_kubectl
   install_collections
