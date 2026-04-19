@@ -1,14 +1,5 @@
 #!/bin/bash
 set -e
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-INVENTORY="inventory/inventory.ini"
-ANSIBLE_DIR="ansible"
-
-export ANSIBLE_CONFIG="$SCRIPT_DIR/ansible.cfg"
-
-#!/bin/bash
-set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INVENTORY="inventory/inventory.ini"
 ANSIBLE_DIR="ansible"
